@@ -16,17 +16,17 @@ def resize_image(image, width, height):
 
     return result
 
-def save_image(image, filename, save_path):
-    if not os.path.exists(save_path):
-        os.mkdir(save_path)
+def save_image(image, file_name, read_path):
+    if not os.path.exists(f"cropped_{read_path}"):
+        os.mkdir(f"cropped_{read_path}")
 
-    image.save(f"{save_path}/cropped_{filename}.png")
+    image.save(f"cropped_{read_path}/cropped_{file_name}.png")
 
     return
 
-def read_images(path):
-    for file in os.listdir(path):
-        yield f"{path}/{file}"
+def read_images(read_path):
+    for file in os.listdir(read_path):
+        yield f"{read_path}/{file}"
 
 image_path = r'test.png'
 
