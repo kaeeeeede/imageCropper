@@ -1,6 +1,13 @@
 import PySimpleGUI as sg
 from PIL import Image
 
+def crop_image(image, x_offset, y_offset, width, height):
+	crop_box = (x_offset, y_offset, width + x_offset, height + y_offset)
+	
+	result = image.crop(crop_box)
+
+	return result
+
 image_path = r'test.png'
 
 layout = [[sg.Graph(
