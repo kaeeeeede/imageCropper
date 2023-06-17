@@ -71,6 +71,7 @@ rect_bottom_right = (500, 500)
 
 dragging = False
 moving = False
+resizing = False
 last_coord = None
 start_point = end_point = None
 
@@ -90,9 +91,27 @@ while True:
 
         	rect_top_left = tuple(map(lambda i, j: i + j, rect_top_left, move_vector))
         	rect_bottom_right = tuple(map(lambda i, j: i + j, rect_bottom_right, move_vector))
+        if resizing:
+        	if last_coord == None:
+        		continue
+        	resize_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
+
+        	rect_centre = ((rect_top_left[0] + rect_bottom_right[0])/2, (rect_top_left[1] + rect_bottom_right[1])/2)
+
+        	if coord[0] < rect_centre[0]: # left
+        		rect_top_left = (rect_top_left[0] + resize_vector[0], rect_top_left[1])
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0] + resize_vector[0], rect_bottom_right[1])
+
+        	if coord[1] < rect_centre[1]: # top	
+        		rect_top_left = (rect_top_left[0], rect_top_left[1] + resize_vector[1])
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0], rect_bottom_right[1] + resize_vector[1])
 
         elif is_point_in_rect(coord, rect_top_left, rect_bottom_right):
         	moving = True
+        else:
+        	resizing = True
 
         last_coord = coord
         if prior_rect:
@@ -102,3 +121,5 @@ while True:
 
     elif event == "-GRAPH-+UP":
         moving = False
+        resizing = False
+        
