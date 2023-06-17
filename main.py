@@ -30,14 +30,13 @@ def read_images(read_path):
 
 image_path = r'test.png'
 
-layout = [[sg.Graph(
-    canvas_size=(400, 400),
-    graph_bottom_left=(0, 400),
-    graph_top_right=(400, 0),
-    key="-GRAPH-",
-    enable_events=True,  # mouse click events
-    drag_submits=True), ],
-    [sg.Text(key='info', size=(60, 1))]]
+layout = [[sg.Button("Next")] 
+        , [sg.Graph(canvas_size=(400, 400),
+                graph_bottom_left=(0, 400),
+                graph_top_right=(400, 0),
+                key="-GRAPH-",
+                enable_events=True,  # mouse click events
+                drag_submits=True), ]]
 
 window = sg.Window("Cropper", layout, finalize=True)
 graph = window["-GRAPH-"]
@@ -99,6 +98,13 @@ while True:
         	graph.delete_figure(prior_rect)
 
         prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
+
+    if event == "Next":
+        im = Image.open(image_path)
+
+        cropped_image = crop_image(im, 50, 50, 500, 500)
+        resized_image = resize_image(cropped_image, 300, 300)
+        save_image(resized_image, "test", "test")
 
     elif event == "-GRAPH-+UP":
         moving = False
