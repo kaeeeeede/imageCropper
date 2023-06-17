@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import os
 from PIL import Image
 
 def crop_image(image, x_offset, y_offset, width, height):
@@ -14,6 +15,14 @@ def resize_image(image, width, height):
     result = image.resize(new_size)
 
     return result
+
+def save_image(image, filename, save_path):
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
+    image.save(f"{save_path}/cropped_{filename}.png")
+
+    return
 
 image_path = r'test.png'
 
