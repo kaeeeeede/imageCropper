@@ -8,6 +8,13 @@ def crop_image(image, x_offset, y_offset, width, height):
 
 	return result
 
+def resize_image(image, width, height):
+    new_size = (width, height)
+
+    result = image.resize(new_size)
+
+    return result
+
 image_path = r'test.png'
 
 layout = [[sg.Graph(
