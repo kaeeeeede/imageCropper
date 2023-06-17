@@ -10,6 +10,6 @@ def crop_image(image, x_offset, y_offset, width, height):
 	return
 
 if __name__ == "__main__":
-	im = Image.open(r"C:\Users\Kaede\OneDrive - mmu.edu.my\Documents\Projects\imageCropper\test.jpg")
+	im = Image.open(r"test.jpg")
 
 	crop_image(im, 123, 165, 1230, 1860)
