@@ -64,16 +64,17 @@ def is_point_in_rect(point, rect_corner_1, rect_corner_2):
 			return True
 	return False
 
+target_aspect_ratio = (250,500)
+
 load_image_on_graph(graph, "test.png")
-prior_rect = init_crop_rect(graph, 500, 500)
+prior_rect = init_crop_rect(graph, 250, 500)
 rect_top_left = (0, 0)
-rect_bottom_right = (500, 500)
+rect_bottom_right = (250, 500)
 
 dragging = False
 moving = False
 resizing = False
 last_coord = None
-start_point = end_point = None
 
 while True:
     event, values = window.read()
@@ -98,15 +99,65 @@ while True:
 
         	rect_centre = ((rect_top_left[0] + rect_bottom_right[0])/2, (rect_top_left[1] + rect_bottom_right[1])/2)
 
+        	adjusted_left = False
+        	adjusted_top = False
+
         	if coord[0] < rect_centre[0]: # left
         		rect_top_left = (rect_top_left[0] + resize_vector[0], rect_top_left[1])
+        		adjusted_left = True
         	else:
         		rect_bottom_right = (rect_bottom_right[0] + resize_vector[0], rect_bottom_right[1])
+        		adjusted_left = False
 
         	if coord[1] < rect_centre[1]: # top	
         		rect_top_left = (rect_top_left[0], rect_top_left[1] + resize_vector[1])
+        		adjusted_top = True
         	else:
         		rect_bottom_right = (rect_bottom_right[0], rect_bottom_right[1] + resize_vector[1])
+        		adjusted_top = False
+
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+
+        	target_height_following_width = rect_width / target_aspect_ratio[0] * target_aspect_ratio[1] 
+        	target_width_following_height = rect_height / target_aspect_ratio[1] * target_aspect_ratio[0]
+        	
+        	if target_height_following_width > rect_height:
+        		if adjusted_top:
+        			rect_top_left = (rect_top_left[0], rect_bottom_right[1] - target_height_following_width)
+        		else:
+        			rect_bottom_right = (rect_bottom_right[0], rect_top_left[1] + target_height_following_width)
+        	elif target_width_following_height > rect_width:
+        		if adjusted_left:
+        			rect_top_left = (rect_bottom_right[0] - target_width_following_height, rect_top_left[1])
+        		else:
+        			rect_bottom_right = (rect_top_left[0] + target_width_following_height, rect_bottom_right[1])
+
+        	if adjusted_left:
+        		rect_top_left = (max(rect_top_left[0] + resize_vector[0], 0), rect_top_left[1])
+        	else:
+        	 	rect_bottom_right = (min(rect_bottom_right[0] + resize_vector[0], graph.get_size()[0]), rect_bottom_right[1])
+
+        	if adjusted_top:
+        		rect_top_left = (rect_top_left[0], max(rect_top_left[1] + resize_vector[1], 0))
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0], min(rect_bottom_right[1] + resize_vector[1], graph.get_size()[1]))
+
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+        	target_height_following_width = rect_width / target_aspect_ratio[0] * target_aspect_ratio[1] 
+        	target_width_following_height = rect_height / target_aspect_ratio[1] * target_aspect_ratio[0]
+
+        	if target_height_following_width > rect_height:
+        		if adjusted_left:
+        			rect_top_left = (rect_bottom_right[0] - target_width_following_height, rect_top_left[1])
+        		else:
+        			rect_bottom_right = (rect_top_left[0] + target_width_following_height, rect_bottom_right[1])
+        	elif target_width_following_height > rect_width:
+        		if adjusted_top:
+        			rect_top_left = (rect_top_left[0], rect_bottom_right[1] - target_height_following_width)
+        		else:
+        			rect_bottom_right = (rect_bottom_right[0], rect_top_left[1] + target_height_following_width)
 
         elif is_point_in_rect(coord, rect_top_left, rect_bottom_right):
         	moving = True
