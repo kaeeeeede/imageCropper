@@ -25,12 +25,8 @@ def save_image(image, filename, save_path):
     return
 
 def read_images(path):
-    images = []
-
     for file in os.listdir(path):
-        images.append(f"{path}/{file}")
-
-    return images
+        yield f"{path}/{file}"
 
 image_path = r'test.png'
 
