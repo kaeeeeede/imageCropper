@@ -5,11 +5,11 @@ def crop_image(image, x_offset, y_offset, width, height):
 	
 	result = image.crop(crop_box)
 
-	result.show()
-
-	return
+	return result
 
 if __name__ == "__main__":
-	im = Image.open(r"test.jpg")
+	image = Image.open(r"test.jpg")
 
-	crop_image(im, 123, 165, 1230, 1860)
+	cropped_image = crop_image(image, 123, 165, 1230, 1860)
+
+	cropped_image.show()
