@@ -90,9 +90,16 @@ while True:
         		continue
         	move_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
 
-        	rect_top_left = tuple(map(lambda i, j: i + j, rect_top_left, move_vector))
-        	rect_bottom_right = tuple(map(lambda i, j: i + j, rect_bottom_right, move_vector))
-        if resizing:
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+
+        	graph_width, graph_height = graph.get_size()
+
+        	rect_top_left = (min(max(rect_top_left[0] + move_vector[0], 0), graph_width - rect_width), min(max(rect_top_left[1] + move_vector[1], 0), graph_height - rect_height))
+
+        	rect_bottom_right = (max(min(rect_bottom_right[0] + move_vector[0], graph_width), rect_width), max(min(rect_bottom_right[1] + move_vector[1], graph_height), rect_height))
+
+        elif resizing:
         	if last_coord == None:
         		continue
         	resize_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
