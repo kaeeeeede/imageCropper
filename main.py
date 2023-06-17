@@ -24,6 +24,10 @@ def save_image(image, filename, save_path):
 
     return
 
+def read_images(path):
+    for file in os.listdir(path):
+        yield f"{path}/{file}"
+
 image_path = r'test.png'
 
 layout = [[sg.Graph(
