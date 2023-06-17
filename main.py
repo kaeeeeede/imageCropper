@@ -42,19 +42,37 @@ layout = [[sg.Graph(
 window = sg.Window("Cropper", layout, finalize=True)
 graph = window["-GRAPH-"]
 
-dragging = False
-start_point = end_point = prior_rect = None
-
 def load_image_on_graph(graph, image_path):
 	im = Image.open(image_path)
 	w,h = im.size
 
-	graph.change_coordinates((0, w), (h, 0))
+	graph.change_coordinates((0, h), (w, 0))
 
 	graph.draw_image(image_path, location=(0,0))
 	graph.set_size(im.size)
 
+def init_crop_rect(graph, width, height):
+	return graph.draw_rectangle((0, 0), (width, height), line_color='red')
+
+def is_point_in_rect(point, rect_corner_1, rect_corner_2):
+	x, y = point
+	rect_top_left = (min(rect_corner_1[0], rect_corner_2[0]), min(rect_corner_1[1], rect_corner_2[1]))
+	rect_bottom_right = (max(rect_corner_1[0], rect_corner_2[0]), max(rect_corner_1[1], rect_corner_2[1]))
+
+	if (rect_top_left[0] < x and x < rect_bottom_right[0]):
+		if (rect_top_left[1] < y and y < rect_bottom_right[1]):
+			return True
+	return False
+
 load_image_on_graph(graph, "test.png")
+prior_rect = init_crop_rect(graph, 500, 500)
+rect_top_left = (0, 0)
+rect_bottom_right = (500, 500)
+
+dragging = False
+moving = False
+last_coord = None
+start_point = end_point = None
 
 while True:
     event, values = window.read()
@@ -63,19 +81,24 @@ while True:
         break    
 
     if event == "-GRAPH-":
-        x, y = values["-GRAPH-"]
+        coord = values["-GRAPH-"]
 
-        if not dragging:
-            start_point = (x, y)
-            dragging = True
-        else:
-            end_point = (x, y)
+        if moving:
+        	if last_coord == None:
+        		continue
+        	move_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
 
+        	rect_top_left = tuple(map(lambda i, j: i + j, rect_top_left, move_vector))
+        	rect_bottom_right = tuple(map(lambda i, j: i + j, rect_bottom_right, move_vector))
+
+        elif is_point_in_rect(coord, rect_top_left, rect_bottom_right):
+        	moving = True
+
+        last_coord = coord
         if prior_rect:
-            graph.delete_figure(prior_rect)
-            
-        if None not in (start_point, end_point):
-            prior_rect = graph.draw_rectangle(start_point, end_point, line_color='red')
+        	graph.delete_figure(prior_rect)
+
+        prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
     elif event == "-GRAPH-+UP":
-        dragging = False
+        moving = False
