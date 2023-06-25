@@ -88,12 +88,8 @@ graph = window["-GRAPH-"]
 
 target_aspect_ratio = (250,500)
 
-<<<<<<< HEAD
 current_image = next(images)
 load_image_on_graph(graph, current_image)
-=======
-load_image_on_graph(graph, "test.jpg")
->>>>>>> 788496b2a94b4967c4de0e3ed441147f812c6079
 prior_rect = init_crop_rect(graph, 250, 500)
 rect_top_left = (0, 0)
 rect_bottom_right = (250, 500)
