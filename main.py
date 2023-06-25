@@ -71,7 +71,6 @@ def load_new(image_path, graph, crop_res):
     prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
 read_path = r'images'
-save_path = r'cropped_test'
 
 images = read_images(read_path)
 
