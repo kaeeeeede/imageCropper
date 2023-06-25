@@ -18,10 +18,13 @@ def resize_image(image, width, height):
     return result
 
 def save_image(image, file_name, read_path):
-    if not os.path.exists(f"cropped_{read_path}"):
-        os.mkdir(f"cropped_{read_path}")
+    file_extension = os.path.splitext(file_name)[1]
+    file_name = os.path.basename(file_name)
 
-    image.save(f"cropped_{file_name}")
+    if not os.path.exists(f"{read_path}_cropped"):
+        os.mkdir(f"{read_path}_cropped")
+
+    image.save(f"{read_path}_cropped/{file_name}", "PNG")
 
     return
 
@@ -70,7 +73,21 @@ def load_new(image_path, graph, crop_res):
 
     prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
-read_path = r'images'
+variables_layout = [
+                    [sg.Text('Target Width'), sg.InputText()],
+                    [sg.Text('Target Height'), sg.InputText()],
+                    [sg.FolderBrowse('Select Image Folder'), sg.Input()],
+                    [sg.Button('Confirm')] 
+                ]
+
+window = sg.Window('Window Title', variables_layout)
+
+event, values = window.read()
+target_aspect_ratio = (int(values[0]), int(values[1])) 
+
+window.close()
+
+read_path = values['Select Image Folder'] 
 
 images = read_images(read_path)
 
@@ -79,19 +96,17 @@ layout = [[sg.Button("Next")]
                 graph_bottom_left=(0, 400),
                 graph_top_right=(400, 0),
                 key="-GRAPH-",
-                enable_events=True,  # mouse click events
+                enable_events=True,
                 drag_submits=True), ]]
 
 window = sg.Window("Cropper", layout, finalize=True)
 graph = window["-GRAPH-"]
 
-target_aspect_ratio = (250,500)
-
 current_image = next(images)
 load_image_on_graph(graph, current_image)
-prior_rect = init_crop_rect(graph, 250, 500)
+prior_rect = init_crop_rect(graph, *target_aspect_ratio)
 rect_top_left = (0, 0)
-rect_bottom_right = (250, 500)
+rect_bottom_right = target_aspect_ratio
 
 dragging = False
 moving = False
