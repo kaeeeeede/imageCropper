@@ -50,6 +50,21 @@ def is_point_in_rect(point, rect_corner_1, rect_corner_2):
 			return True
 	return False
 
+def load_new(image_path, graph, crop_res):
+    global prior_rect
+    global rect_top_left
+    global rect_bottom_right
+
+    load_image_on_graph(graph, image_path)
+    prior_rect = init_crop_rect(graph, *crop_res)
+    rect_top_left = (0, 0)
+    rect_bottom_right = crop_res
+
+    if prior_rect:
+        graph.delete_figure(prior_rect)
+
+    prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
+
 image_path = r'test.png'
 
 layout = [[sg.Button("Next")] 
