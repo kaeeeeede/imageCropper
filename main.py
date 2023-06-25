@@ -74,10 +74,10 @@ def load_new(image_path, graph, crop_res):
     prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
 variables_layout = [
-                    [sg.Text('Enter something on Row 1'), sg.InputText()],
-                    [sg.Text('Enter something on Row 2'), sg.InputText()],
-                    [sg.Input(), sg.FolderBrowse('FolderBrowse')],
-                    [sg.Button('Ok')] 
+                    [sg.Text('Target Width'), sg.InputText()],
+                    [sg.Text('Target Height'), sg.InputText()],
+                    [sg.FolderBrowse('Select Image Folder'), sg.Input()],
+                    [sg.Button('Confirm')] 
                 ]
 
 window = sg.Window('Window Title', variables_layout)
@@ -87,7 +87,7 @@ target_aspect_ratio = (int(values[0]), int(values[1]))
 
 window.close()
 
-read_path = values['FolderBrowse'] 
+read_path = values['Select Image Folder'] 
 
 images = read_images(read_path)
 
