@@ -20,7 +20,7 @@ def save_image(image, file_name, read_path):
     if not os.path.exists(f"cropped_{read_path}"):
         os.mkdir(f"cropped_{read_path}")
 
-    image.save(f"cropped_{read_path}/cropped_{file_name}.png")
+    image.save(f"cropped_{file_name}")
 
     return
 
@@ -65,7 +65,10 @@ def load_new(image_path, graph, crop_res):
 
     prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
-image_path = r'test.png'
+read_path = r'images'
+save_path = r'cropped_test'
+
+images = read_images(read_path)
 
 layout = [[sg.Button("Next")] 
         , [sg.Graph(canvas_size=(400, 400),
@@ -80,7 +83,8 @@ graph = window["-GRAPH-"]
 
 target_aspect_ratio = (250,500)
 
-load_image_on_graph(graph, "test.png")
+current_image = next(images)
+load_image_on_graph(graph, current_image)
 prior_rect = init_crop_rect(graph, 250, 500)
 rect_top_left = (0, 0)
 rect_bottom_right = (250, 500)
@@ -192,11 +196,14 @@ while True:
         prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
     if event == "Next":
-        im = Image.open(image_path)
+        im = Image.open(current_image)
 
         cropped_image = crop_image(im, rect_top_left[0], rect_top_left[1], rect_bottom_right[0] - rect_top_left[0], rect_bottom_right[1] - rect_top_left[1])
         resized_image = resize_image(cropped_image, target_aspect_ratio[0], target_aspect_ratio[1])
-        save_image(resized_image, "test", "test")
+        save_image(resized_image, current_image, read_path)
+
+        current_image = next(images)
+        load_new(current_image, graph, target_aspect_ratio)
 
     elif event == "-GRAPH-+UP":
         moving = False
