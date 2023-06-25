@@ -28,20 +28,6 @@ def read_images(read_path):
     for file in os.listdir(read_path):
         yield f"{read_path}/{file}"
 
-image_path = r'test.png'
-
-layout = [[sg.Graph(
-    canvas_size=(400, 400),
-    graph_bottom_left=(0, 400),
-    graph_top_right=(400, 0),
-    key="-GRAPH-",
-    enable_events=True,  # mouse click events
-    drag_submits=True), ],
-    [sg.Text(key='info', size=(60, 1))]]
-
-window = sg.Window("Cropper", layout, finalize=True)
-graph = window["-GRAPH-"]
-
 def load_image_on_graph(graph, image_path):
 	im = Image.open(image_path)
 	w,h = im.size
@@ -63,6 +49,20 @@ def is_point_in_rect(point, rect_corner_1, rect_corner_2):
 		if (rect_top_left[1] < y and y < rect_bottom_right[1]):
 			return True
 	return False
+
+image_path = r'test.png'
+
+layout = [[sg.Graph(
+    canvas_size=(400, 400),
+    graph_bottom_left=(0, 400),
+    graph_top_right=(400, 0),
+    key="-GRAPH-",
+    enable_events=True,  # mouse click events
+    drag_submits=True), ],
+    [sg.Text(key='info', size=(60, 1))]]
+
+window = sg.Window("Cropper", layout, finalize=True)
+graph = window["-GRAPH-"]
 
 target_aspect_ratio = (250,500)
 
