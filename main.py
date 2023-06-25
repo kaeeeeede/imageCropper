@@ -70,7 +70,21 @@ def load_new(image_path, graph, crop_res):
 
     prior_rect = graph.draw_rectangle(rect_top_left, rect_bottom_right, line_color='red')
 
-read_path = r'images'
+variables_layout = [
+                    [sg.Text('Enter something on Row 1'), sg.InputText()],
+                    [sg.Text('Enter something on Row 2'), sg.InputText()],
+                    [sg.Input(), sg.FolderBrowse('FolderBrowse')],
+                    [sg.Button('Ok')] 
+                ]
+
+window = sg.Window('Window Title', variables_layout)
+
+event, values = window.read()
+target_aspect_ratio = (int(values[0]), int(values[1])) 
+
+window.close()
+
+read_path = values['FolderBrowse'] 
 
 images = read_images(read_path)
 
@@ -79,19 +93,17 @@ layout = [[sg.Button("Next")]
                 graph_bottom_left=(0, 400),
                 graph_top_right=(400, 0),
                 key="-GRAPH-",
-                enable_events=True,  # mouse click events
+                enable_events=True,
                 drag_submits=True), ]]
 
 window = sg.Window("Cropper", layout, finalize=True)
 graph = window["-GRAPH-"]
 
-target_aspect_ratio = (250,500)
-
 current_image = next(images)
 load_image_on_graph(graph, current_image)
-prior_rect = init_crop_rect(graph, 250, 500)
+prior_rect = init_crop_rect(graph, *target_aspect_ratio)
 rect_top_left = (0, 0)
-rect_bottom_right = (250, 500)
+rect_bottom_right = target_aspect_ratio
 
 dragging = False
 moving = False
