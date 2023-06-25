@@ -24,7 +24,7 @@ def save_image(image, file_name, read_path):
     if not os.path.exists(f"{read_path}_cropped"):
         os.mkdir(f"{read_path}_cropped")
 
-    image.save(f"{read_path}_cropped/{file_name}", file_extension.replace('.', ''))
+    image.save(f"{read_path}_cropped/{file_name}", "PNG")
 
     return
 
