@@ -28,19 +28,6 @@ def read_images(read_path):
     for file in os.listdir(read_path):
         yield f"{read_path}/{file}"
 
-image_path = r'test.png'
-
-layout = [[sg.Button("Next")] 
-        , [sg.Graph(canvas_size=(400, 400),
-                graph_bottom_left=(0, 400),
-                graph_top_right=(400, 0),
-                key="-GRAPH-",
-                enable_events=True,  # mouse click events
-                drag_submits=True), ]]
-
-window = sg.Window("Cropper", layout, finalize=True)
-graph = window["-GRAPH-"]
-
 def load_image_on_graph(graph, image_path):
 	im = Image.open(image_path)
 	w,h = im.size
@@ -63,15 +50,30 @@ def is_point_in_rect(point, rect_corner_1, rect_corner_2):
 			return True
 	return False
 
+image_path = r'test.png'
+
+layout = [[sg.Button("Next")] 
+        , [sg.Graph(canvas_size=(400, 400),
+                graph_bottom_left=(0, 400),
+                graph_top_right=(400, 0),
+                key="-GRAPH-",
+                enable_events=True,  # mouse click events
+                drag_submits=True), ]]
+
+window = sg.Window("Cropper", layout, finalize=True)
+graph = window["-GRAPH-"]
+
+target_aspect_ratio = (250,500)
+
 load_image_on_graph(graph, "test.png")
-prior_rect = init_crop_rect(graph, 500, 500)
+prior_rect = init_crop_rect(graph, 250, 500)
 rect_top_left = (0, 0)
-rect_bottom_right = (500, 500)
+rect_bottom_right = (250, 500)
 
 dragging = False
 moving = False
+resizing = False
 last_coord = None
-start_point = end_point = None
 
 while True:
     event, values = window.read()
@@ -87,11 +89,86 @@ while True:
         		continue
         	move_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
 
-        	rect_top_left = tuple(map(lambda i, j: i + j, rect_top_left, move_vector))
-        	rect_bottom_right = tuple(map(lambda i, j: i + j, rect_bottom_right, move_vector))
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+
+        	graph_width, graph_height = graph.get_size()
+
+        	rect_top_left = (min(max(rect_top_left[0] + move_vector[0], 0), graph_width - rect_width), min(max(rect_top_left[1] + move_vector[1], 0), graph_height - rect_height))
+
+        	rect_bottom_right = (max(min(rect_bottom_right[0] + move_vector[0], graph_width), rect_width), max(min(rect_bottom_right[1] + move_vector[1], graph_height), rect_height))
+
+        elif resizing:
+        	if last_coord == None:
+        		continue
+        	resize_vector = tuple(map(lambda i, j: i - j, coord, last_coord))
+
+        	rect_centre = ((rect_top_left[0] + rect_bottom_right[0])/2, (rect_top_left[1] + rect_bottom_right[1])/2)
+
+        	adjusted_left = False
+        	adjusted_top = False
+
+        	if coord[0] < rect_centre[0]: # left
+        		rect_top_left = (rect_top_left[0] + resize_vector[0], rect_top_left[1])
+        		adjusted_left = True
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0] + resize_vector[0], rect_bottom_right[1])
+        		adjusted_left = False
+
+        	if coord[1] < rect_centre[1]: # top	
+        		rect_top_left = (rect_top_left[0], rect_top_left[1] + resize_vector[1])
+        		adjusted_top = True
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0], rect_bottom_right[1] + resize_vector[1])
+        		adjusted_top = False
+
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+
+        	target_height_following_width = rect_width / target_aspect_ratio[0] * target_aspect_ratio[1] 
+        	target_width_following_height = rect_height / target_aspect_ratio[1] * target_aspect_ratio[0]
+        	
+        	if target_height_following_width > rect_height:
+        		if adjusted_top:
+        			rect_top_left = (rect_top_left[0], rect_bottom_right[1] - target_height_following_width)
+        		else:
+        			rect_bottom_right = (rect_bottom_right[0], rect_top_left[1] + target_height_following_width)
+        	elif target_width_following_height > rect_width:
+        		if adjusted_left:
+        			rect_top_left = (rect_bottom_right[0] - target_width_following_height, rect_top_left[1])
+        		else:
+        			rect_bottom_right = (rect_top_left[0] + target_width_following_height, rect_bottom_right[1])
+
+        	if adjusted_left:
+        		rect_top_left = (max(rect_top_left[0] + resize_vector[0], 0), rect_top_left[1])
+        	else:
+        	 	rect_bottom_right = (min(rect_bottom_right[0] + resize_vector[0], graph.get_size()[0]), rect_bottom_right[1])
+
+        	if adjusted_top:
+        		rect_top_left = (rect_top_left[0], max(rect_top_left[1] + resize_vector[1], 0))
+        	else:
+        		rect_bottom_right = (rect_bottom_right[0], min(rect_bottom_right[1] + resize_vector[1], graph.get_size()[1]))
+
+        	rect_width = rect_bottom_right[0] - rect_top_left[0]
+        	rect_height = rect_bottom_right[1] - rect_top_left[1]
+        	target_height_following_width = rect_width / target_aspect_ratio[0] * target_aspect_ratio[1] 
+        	target_width_following_height = rect_height / target_aspect_ratio[1] * target_aspect_ratio[0]
+
+        	if target_height_following_width > rect_height:
+        		if adjusted_left:
+        			rect_top_left = (rect_bottom_right[0] - target_width_following_height, rect_top_left[1])
+        		else:
+        			rect_bottom_right = (rect_top_left[0] + target_width_following_height, rect_bottom_right[1])
+        	elif target_width_following_height > rect_width:
+        		if adjusted_top:
+        			rect_top_left = (rect_top_left[0], rect_bottom_right[1] - target_height_following_width)
+        		else:
+        			rect_bottom_right = (rect_bottom_right[0], rect_top_left[1] + target_height_following_width)
 
         elif is_point_in_rect(coord, rect_top_left, rect_bottom_right):
         	moving = True
+        else:
+        	resizing = True
 
         last_coord = coord
         if prior_rect:
@@ -108,3 +185,5 @@ while True:
 
     elif event == "-GRAPH-+UP":
         moving = False
+        resizing = False
+        
