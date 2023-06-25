@@ -179,8 +179,8 @@ while True:
     if event == "Next":
         im = Image.open(image_path)
 
-        cropped_image = crop_image(im, 50, 50, 500, 500)
-        resized_image = resize_image(cropped_image, 300, 300)
+        cropped_image = crop_image(im, rect_top_left[0], rect_top_left[1], rect_bottom_right[0] - rect_top_left[0], rect_bottom_right[1] - rect_top_left[1])
+        resized_image = resize_image(cropped_image, target_aspect_ratio[0], target_aspect_ratio[1])
         save_image(resized_image, "test", "test")
 
     elif event == "-GRAPH-+UP":
