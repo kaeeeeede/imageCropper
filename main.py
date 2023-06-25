@@ -18,10 +18,13 @@ def resize_image(image, width, height):
     return result
 
 def save_image(image, file_name, read_path):
-    if not os.path.exists(f"cropped_{read_path}"):
-        os.mkdir(f"cropped_{read_path}")
+    file_extension = os.path.splitext(file_name)[1]
+    file_name = os.path.basename(file_name)
 
-    image.save(f"cropped_{file_name}")
+    if not os.path.exists(f"{read_path}_cropped"):
+        os.mkdir(f"{read_path}_cropped")
+
+    image.save(f"{read_path}_cropped/{file_name}", file_extension.replace('.', ''))
 
     return
 
